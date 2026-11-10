@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ tool_name }} — Informe de Ciclo JML</title>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --panel: #14181d;
+    --panel-alt: #1b2027;
+    --text: #e6e9ee;
+    --muted: #8b95a3;
+    --border: #232a33;
+    --joiner: #2ecc71;
+    --mover: #3498db;
+    --leaver: #e74c3c;
+    --ok: #2ecc71;
+    --client: #e74c3c;
+    --server: #e67e22;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  header {
+    padding: 28px 32px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; }
+  header .meta { color: var(--muted); font-size: 13px; }
+  main { padding: 24px 32px 48px; max-width: 1280px; margin: 0 auto; }
+  h2 { font-size: 16px; font-weight: 600; margin: 28px 0 12px; color: var(--text); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .card .value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .card.ok .value { color: var(--ok); }
+  .card.fail .value { color: var(--client); }
+  .phases { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .phase-chip { border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: #0b0d10; }
+  .phase-JOINER { background: var(--joiner); }
+  .phase-MOVER { background: var(--mover); }
+  .phase-LEAVER { background: var(--leaver); }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  thead th { text-align: left; padding: 10px 12px; background: var(--panel-alt); color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; color: #0b0d10; }
+  .status-2xx { color: var(--ok); font-weight: 600; }
+  .status-4xx { color: var(--client); font-weight: 600; }
+  .status-5xx { color: var(--server); font-weight: 600; }
+  .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 12px; }
+  details summary { cursor: pointer; color: var(--mover); font-size: 12px; }
+  details pre { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin: 6px 0 0; overflow-x: auto; font-size: 12px; }
+  .error-cell { color: var(--client); font-size: 12px; }
+  footer { padding: 20px 32px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>{{ tool_name }} — Informe de Ciclo JML</h1>
+  <div class="meta">Fecha de generación: {{ generated_at }}</div>
+</header>
+<main>
+  <h2>Resumen ejecutivo</h2>
+  <div class="cards">
+    <div class="card"><div class="label">Total eventos</div><div class="value">{{ summary.total_events }}</div></div>
+    <div class="card ok"><div class="label">Exitosos</div><div class="value">{{ summary.successful }}</div></div>
+    <div class="card fail"><div class="label">Fallidos</div><div class="value">{{ summary.failed }}</div></div>
+    <div class="card"><div class="label">Duración</div><div class="value">{{ summary.duration }}</div></div>
+  </div>
+  <div class="phases">
+    {% for phase, count in summary.by_phase.items() %}
+    <span class="phase-chip phase-{{ phase }}">{{ phase }}: {{ count }}</span>
+    {% endfor %}
+  </div>
+
+  <h2>Eventos detallados</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Fase</th>
+        <th>Usuario</th>
+        <th>Método</th>
+        <th>Endpoint</th>
+        <th>Status</th>
+        <th>Delta</th>
+        <th>Error</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td class="mono">{{ event.timestamp }}</td>
+        <td><span class="badge phase-{{ event.phase }}">{{ event.phase }}</span></td>
+        <td class="mono">{{ event.user }}</td>
+        <td class="mono">{{ event.method }}</td>
+        <td class="mono">{{ event.endpoint }}</td>
+        <td class="status-{{ event.status_class }}">{{ event.status }}</td>
+        <td>
+          {% if event.delta %}
+          <details><summary>ver payload</summary><pre class="mono">{{ event.delta }}</pre></details>
+          {% else %}—{% endif %}
+        </td>
+        <td class="error-cell">{{ event.error or '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</main>
+<footer>Generado por {{ tool_name }} v1.0.0 — MIT License</footer>
+</body>
+</html>

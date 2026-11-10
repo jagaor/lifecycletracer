@@ -1,0 +1,24 @@
+# Escenario mínimo: solo fase JOINER para dos usuarios ficticios.
+# Útil para pruebas rápidas y como ejemplo didáctico de un escenario parcial.
+# Las fases MOVER y LEAVER están vacías intencionadamente.
+
+name: "joiner-only"
+description: "Alta de dos empleados sin movimientos ni bajas posteriores"
+
+joiner_events:
+  - user_id: "jdoe"
+    user_name: "John Doe"
+    email: "john.doe@example.com"
+    department: "Engineering"
+    title: "Software Engineer"
+    active: true
+  - user_id: "asmith"
+    user_name: "Alice Smith"
+    email: "alice.smith@example.com"
+    department: "Product"
+    title: "Product Manager"
+    active: true
+
+mover_events: []
+
+leaver_events: []

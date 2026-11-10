@@ -1,0 +1,49 @@
+name: full-lifecycle
+description: "Ciclo completo Joiner-Mover-Leaver con tres usuarios ficticios"
+
+# Perfiles de usuario ficticios usados como base del escenario.
+# Todos los datos son inventados y no referencian a ninguna empresa real.
+users:
+  - user_name: ana.lopez
+    given_name: Ana
+    family_name: Lopez
+    email: ana.lopez@example.com
+    department: Ingenieria
+    title: Ingeniera de Software
+    active: true
+  - user_name: pedro.ruiz
+    given_name: Pedro
+    family_name: Ruiz
+    email: pedro.ruiz@example.com
+    department: Operaciones
+    title: Analista de Sistemas
+    active: true
+  - user_name: sara.vega
+    given_name: Sara
+    family_name: Vega
+    email: sara.vega@example.com
+    department: Recursos Humanos
+    title: Especialista de Talento
+    active: true
+
+# Eventos de alta: los tres usuarios se incorporan a la organizacion.
+joiner_events:
+  - user_name: ana.lopez
+  - user_name: pedro.ruiz
+  - user_name: sara.vega
+
+# Eventos de movimiento: dos usuarios cambian de departamento y puesto.
+mover_events:
+  - user_name: ana.lopez
+    department: Plataforma
+    title: Ingeniera Senior de Plataforma
+  - user_name: pedro.ruiz
+    department: Seguridad
+    title: Analista de Seguridad
+
+# Eventos de baja: uno se desactiva y otro se elimina del directorio.
+leaver_events:
+  - user_name: sara.vega
+    leaver_action: deactivate
+  - user_name: pedro.ruiz
+    leaver_action: delete
